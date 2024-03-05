@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="10">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="content">
+    <script>
+        function loadContent() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("content").innerHTML = this.responseText;
+                }
+            };
+            xhttp.open("GET", "/", true);
+            xhttp.send();
+        }
+        // Load content initially
+        loadContent();
+        // Refresh content every 5 seconds (10000 milliseconds)
+        setInterval(loadContent, 5000);
+    </script>
+    <table class="styled-title-table">
+        <tr>
+        <th style="text-align: left"><img style="max-width: 10vw; height=auto;" src="{{ url_for('static', filename='vjo_logo.png') }}" alt="Logo"></th>
+        <th style="text-align: left">VJO AQUATICS</th>
+        </tr>
+    </table>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th style="text-align: center">Place</th>
+                <th style="text-align: center">Lane</th>
+                <th style="text-align: center">Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+            <tr class="active-row">
+                <td>{{ item.place }}</td>
+                <td>{{ item.lane }}</td>
+                <td>{{ item.time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</body>
+</html>
