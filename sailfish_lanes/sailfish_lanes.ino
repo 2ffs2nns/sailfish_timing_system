@@ -117,8 +117,7 @@ void printParsedHeaderDate(time_t parsedHeaderDate) {
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
-  WiFiMulti.addAP("***REMOVED***", "***REMOVED***");
-  //WiFiMulti.addAP("***REMOVED***", "***REMOVED***");
+  WiFiMulti.addAP("SSID", "password");
   for (uint8_t t = 4; t > 0; t--) {
     Serial.printf("[INFO] connecting %d...\n", t);
     Serial.flush();
