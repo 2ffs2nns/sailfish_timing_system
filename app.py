@@ -1,9 +1,18 @@
 from flask import Flask, jsonify, request, make_response, render_template
 import datetime
 import json
+import platform
 
 app = Flask(__name__)
 
+# check if the OS is not Darwin (macOS)
+if platform.system() != "Darwin":
+    from gpiozero import Button
+
+    BUTTON_PIN = 2
+    button = Button(BUTTON_PIN)
+else:
+    button = None
 
 def get_current_date():
     now = datetime.datetime.now()
@@ -29,6 +38,12 @@ def index():
 
     return render_template("index.html", data=data)
 
+@app.route("/data")
+def get_data():
+    response = make_response("Data has been received")
+
+    return render_template("data.html", data=data)
+
 
 @app.route("/set_date")
 def set_date():
@@ -42,7 +57,7 @@ def set_date():
 
 
 @app.route("/start")
-def reset():
+def start():
     # The official will need to use a button, or starter which will
     # trigger this URI and set the startTime for the URI race_start_time
     # This will also reset/zero out the scoreboard
@@ -117,10 +132,16 @@ def results():
         results = heat_results(results)
 
     response = make_response("/results has been received.")
-    response.headers["Refresh"] = "0; url=http://0.0.0.0:8000"
+    response.headers["Refresh"] = "0; url=http://0.0.0.0:8000/data"
 
     return response
 
+def button_pressed():
+    print("[INFO] button/starter triggered. Starting new race")
+    start()
+
+if button:
+    button.when_pressed = button_pressed()
 
 if __name__ == "__main__":
     global final_results
@@ -129,4 +150,5 @@ if __name__ == "__main__":
     length_results = 0
     final_results = {}
     data = []
+
     app.run(host="0.0.0.0", port=8000, debug=True)
