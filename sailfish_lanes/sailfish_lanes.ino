@@ -8,10 +8,12 @@
 ESP8266WiFiMulti WiFiMulti;
 
 // change these to correct values
+const char* SSID = "sample";
+const char* PASSWD = "pass";
 String lane_number = "1";
-const char* starterSetDateURI = "http://192.168.4.49:8000/set_date";
-const char* starterRaceStartTimeURI = "http://192.168.4.49:8000/race_start_time";
-const char* starterResultsURI = "http://192.168.4.49:8000/results";
+const char* starterSetDateURI = "http://192.168.4.181:8000/set_date";
+const char* starterRaceStartTimeURI = "http://192.168.4.181:8000/race_start_time";
+const char* starterResultsURI = "http://192.168.4.181:8000/results";
 
 // default values, get overwritten
 String header = "Fri, 16 Feb 2024 22:54:33 GMT";
@@ -117,7 +119,7 @@ void printParsedHeaderDate(time_t parsedHeaderDate) {
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
-  WiFiMulti.addAP("SSID", "password");
+  WiFiMulti.addAP(SSID, PASSWD);
   for (uint8_t t = 4; t > 0; t--) {
     Serial.printf("[INFO] connecting %d...\n", t);
     Serial.flush();
@@ -188,7 +190,17 @@ void loop() {
       httpPOST(starterResultsURI, result);
       
       // make sure the loop doesn't catch same button press
-      delay(2000);
+      delay(5000);
+      // set the lane clock again, ensure it's in sync
+      header = httpGet(starterSetDateURI);
+      time_t parsedHeaderDate = parseHeaderDate(header);
+      if (parsedHeaderDate != 1) {
+        printParsedHeaderDate(parsedHeaderDate);
+        setTime(parsedHeaderDate);
+        Serial.printf("[INFO] ran setTime.......\n");
+      } else {
+        Serial.printf("[ERROR] failed to run parseHeaderDate...\n");
+      }
     }
   } else {
     Serial.printf("[ERROR] http unable to connect\n");
