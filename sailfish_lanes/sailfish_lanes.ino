@@ -11,9 +11,9 @@ ESP8266WiFiMulti WiFiMulti;
 const char* SSID = "sample";
 const char* PASSWD = "pass";
 String lane_number = "1";
-const char* starterSetDateURI = "http://192.168.4.181:8000/set_date";
-const char* starterRaceStartTimeURI = "http://192.168.4.181:8000/race_start_time";
-const char* starterResultsURI = "http://192.168.4.181:8000/results";
+const char* starterSetDateURI       = "http://10.3.141.1:8000/set_date";
+const char* starterRaceStartTimeURI = "http://10.3.141.1:8000/race_start_time";
+const char* starterResultsURI       = "http://10.3.141.1:8000/results";
 
 // default values, get overwritten
 String header = "Fri, 16 Feb 2024 22:54:33 GMT";
