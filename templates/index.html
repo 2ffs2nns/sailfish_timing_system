@@ -28,31 +28,26 @@
     </script>
 </head>
 <body>
-    <div id="content">
-    <table class="styled-title-table">
-        <tr>
-        <th style="text-align: left"><img style="max-width: 10vw; height=auto;" src="{{ url_for('static', filename='vjo_logo.png') }}" alt="Logo"></th>
-        <th style="text-align: left">VJO AQUATICS</th>
-        </tr>
-    </table>
-    <table class="styled-table">
-        <thead>
-            <tr>
-                <th style="text-align: center">Place</th>
-                <th style="text-align: center">Lane</th>
-                <th style="text-align: center">Time</th>
-            </tr>
-        </thead>
-        <tbody id="lane_results">
-            {% for item in data %}
-                <tr class="active-row">
-                    <td>{{ item.place }}</td>
-                    <td>{{ item.lane }}</td>
-                    <td>{{ item.time }}</td>
-                </tr>
+    <div class='table-container'>
+      <div class='header'>
+        <img class='header-image' src="{{ url_for('static', filename='vjo_logo.png') }}" alt="Logo"/>
+        <!-- 26 chars max -->
+        <p>VJO AQUATICS</p>
+      </div>
+      <div class='time-table-header'>
+        <div>Place</div>
+        <div>Lane</div>
+        <div>Time</div>
+      </div>
+      <div class='time-table' id='lane_results'>
+        {% for item in data %}
+          <div class='time-table-row'>
+            <div>{{ item.place }}</div>
+            <div>{{ item.lane }}</div>
+            <div>{{ item.time }}</div>
+          </div>
             {% endfor %}
-        </tbody>
-    </table>
+      </div>
     </div>
 </body>
 </html>

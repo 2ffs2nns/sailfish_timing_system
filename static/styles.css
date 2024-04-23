@@ -1,102 +1,77 @@
-/* styles.css */
+/* css reset */
+p,
 body {
-    font-family: Arial, sans-serif;
-    background-color: #000; /* Updated to black */
-    color: #fff; /* Set text color to white for better contrast */
-    text-align: center;
+  margin: 0;
 }
 
-h1 {
-    color: #333;
+body {
+  height: 80vh;
+  padding: 0 10%;
+
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background-color: #000;
+  font-size: 4rem;
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
-p {
-    color: #666;
+.table-container {
+  width: 100%;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
 }
 
-.styled-title-table {
-    border-collapse: collapse;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 4em;
-    font-family: sans-serif;
-    min-width: 400px;
-    width: 80%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    background-color: #000; /* Set table background to white for contrast */
-    color: #fff; /* Set table text color to black for contrast */
+.header {
+  height: 10vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 1rem 0;
 }
 
-.styled-table {
-    border-collapse: collapse;
-    margin-left: auto;
-    margin-right: auto;
-    font-family: sans-serif;
-    font-size: 3em;
-    min-width: 400px;
-    width: 80%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    background-color: #fff; /* Set table background to white for contrast */
-    color: #000; /* Set table text color to black for contrast */
+.header-image {
+  height: 100%;
 }
 
-/* Adjust font size based on screen size */
-@media screen and (max-height: 400px) {
-    .styled-table {
-        font-size: 0.9em; /* Adjust font size for smaller screens */
-    }
+.time-table {
+  flex: 1;
 }
 
-/* Adjust font size for mobile phones */
-@media only screen and (max-width: 600px) {
-    .styled-title-table,
-    .styled-table {
-        font-size: 2em;
-    }
+.time-table-header {
+  padding: 1rem 0;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  background-color: #048ccf;
 }
 
-/* Adjust font size for tablets */
-@media only screen and (min-width: 601px) and (max-width: 1024px) {
-    .styled-title-table,
-    .styled-table {
-        font-size: 3em;
-    }
+.time-table-header div {
+  text-align: center;
 }
 
-/* Adjust font size for TVs or large screens */
-@media only screen and (min-width: 1025px) {
-    .styled-title-table,
-    .styled-table {
-        font-size: 5em;
-    }
+.time-table-row {
+  height: 22.5%;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  background-color: #fff;
 }
 
-.styled-table thead tr {
-    background-color: #048CCF;
-    color: #ffffff;
-    text-align: left;
-    font-size: 1em;
-}
+.time-table-row div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-.styled-table th,
-.styled-table td {
-    padding: 12px 15px;
+  color: #058cce;
 }
-
-.styled-table tbody tr {
-    border-bottom: 1px solid #dddddd;
-}
-
-.styled-table tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
-}
-
-.styled-table tbody tr:last-of-type {
-    border-bottom: 2px solid #048CCF;
-}
-
-.styled-table tbody tr.active-row {
-    font-weight: bold;
-    color: #048CCF;
-}
-
