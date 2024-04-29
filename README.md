@@ -19,11 +19,12 @@ git clone https://github.com/2ffs2nns/sailfish_timing_system.git
 Then modify `/etc/xdg/lxsession/LXDE-pi/autostart`
 
 ```bash
+# /etc/xdg/lxsession/LXDE-pi/autostart
 @lxpanel --profile LXDE-pi
 @pcmanfm --desktop --profile LXDE-pi
-@xscreensaver -no-splash
+@xset -dpms s off
 
-unclutter -idle 0
+@unclutter -idle 0
 @lxterminal -e python3 /home/vjo/sailfish_timing_system/app.py
 @lxterminal -e python3 /home/vjo/sailfish_timing_system/start_button.py
 @/usr/bin/python /home/vjo/sailfish_timing_system/run_midori.py

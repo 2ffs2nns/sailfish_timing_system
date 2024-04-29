@@ -1,21 +1,31 @@
 from flask import Flask, jsonify, request, make_response, render_template
+import logging
 import datetime
 import json
 
 app = Flask(__name__)
 
+# Set up the logger
+log_file = 'app.log'  # The log file
+logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
+
+# Middleware to log each request
+@app.before_request
+def log_request_info():
+    logging.info(f"Request: {request.method} {request.path} from {request.remote_addr}")
+
 def get_current_date():
     now = datetime.datetime.now()
     day_of_week = now.strftime("%a")
     month = now.strftime("%b")
-    current_date = "%s, %s %s %s %s.%s" % (
+    current_date = "%s, %s %s %s %s" % (
         day_of_week,
         now.day,
         month,
         now.year,
-        now.strftime("%H:%M:%S"),
-        now.microsecond // 10000,
+        now.strftime("%H:%M:%S")
     )
+        # now.microsecond // 10000,
     print("[INFO] using current date: %s" % current_date)
 
     return current_date
@@ -53,17 +63,16 @@ def start():
     # This will also reset/zero out the scoreboard
     global data
     global final_results
-    global race_start_time
+    global race_start_timestamp
 
     data = []
     final_results = {}
 
-    current_date = get_current_date()
-    race_start_time = current_date
-    print("[INFO] new race startTime: %s" % current_date)
+    race_start_timestamp = get_current_date()
+    print(f"[INFO] new race startTime: {race_start_timestamp}")
 
-    response = make_response("Data has been received")
-    response.headers["startTime"] = current_date
+    response = make_response(f"new race start: {race_start_timestamp}")
+    response.headers["startTime"] = race_start_timestamp
 
     return response
 
@@ -73,8 +82,8 @@ def race_start_time():
     # each lane grabs this w/button press, then will calc elapsedTime
     # post it to /results
 
-    response = make_response("Data has been received")
-    response.headers["startTime"] = race_start_time
+    response = make_response(f"race_start_time: {race_start_timestamp}")
+    response.headers["startTime"] = race_start_timestamp
 
     return response
 

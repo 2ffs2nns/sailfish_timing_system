@@ -11,12 +11,13 @@ ESP8266WiFiMulti WiFiMulti;
 const char* SSID = "sample";
 const char* PASSWD = "pass";
 String lane_number = "1";
+
 const char* starterSetDateURI       = "http://10.3.141.1:8000/set_date";
 const char* starterRaceStartTimeURI = "http://10.3.141.1:8000/race_start_time";
 const char* starterResultsURI       = "http://10.3.141.1:8000/results";
 
 // default values, get overwritten
-String header = "Fri, 16 Feb 2024 22:54:33 GMT";
+String header = "Tue, 23 Apr 2024 16:55:33";
 unsigned long lastTime = 0;
 String starterWeekday = "Sun";
 String starterMonth = "Jan";
@@ -45,16 +46,18 @@ String httpGet(const char* starterRaceStartTimeURI) {
   WiFiClient client;
   HTTPClient http;
   String race_start_time;
-  Serial.print("[INFO] wifi connected...\n");
+  Serial.print("[INFO] in httpGet...\n");
   if (http.begin(client, starterRaceStartTimeURI)) {
     const char* headerNames[] = { "startTime" };
     http.collectHeaders(headerNames, sizeof(headerNames)/sizeof(headerNames[0]));
     int httpCode = http.sendRequest("HEAD");
+    Serial.println(http.getString());
 
     if (httpCode > 0) {
       Serial.printf("[INFO] HEAD %s: %d\n", starterRaceStartTimeURI, httpCode);
       if (http.hasHeader("startTime")) {
         http.end();
+        Serial.println(http.header("startTime"));
         return http.header("startTime");
         }
       }
@@ -64,7 +67,8 @@ String httpGet(const char* starterRaceStartTimeURI) {
 }
 
 time_t parseStartTime(const char* startTimeStr) {
-  const char* format = "%a, %d %b %Y %H:%M:%S GMT";
+  // pi zero 2 w
+  const char* format = "%a, %d %b %Y %H:%M:%S";
   struct tm tm;
   memset(&tm, 0, sizeof(struct tm));
   if (strptime(startTimeStr, format, &tm) == NULL) {
@@ -77,10 +81,11 @@ time_t parseStartTime(const char* startTimeStr) {
 time_t parseHeaderDate(String header) {
   int year, month, day, hour, minute, second;
   char monthStr[3];
-  // format is Fri, 16 Feb 2024 22:54:33 GMT
-  if (sscanf(header.c_str(), "%3s, %d %3s %d %d:%d:%d", &starterWeekday, &day, &monthStr, &year, &hour, &minute, &second) != 7) {
-    return 1; // failed
-  }
+  // format is Fri, 16 Feb 2024 22:54:33
+  Serial.println("[INFO] about to run parseHeaderDate...");
+
+  sscanf(header.c_str(), "%3s, %d %3s %d %d:%d:%d", &starterWeekday, &day, &monthStr, &year, &hour, &minute, &second);
+  Serial.println("[INFO] in successfully ran parseHeaderDate...");
   // Convert month string to a number
   const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
   for (int i = 0; i < 12; ++i) {
@@ -120,36 +125,39 @@ void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
   WiFiMulti.addAP(SSID, PASSWD);
-  for (uint8_t t = 4; t > 0; t--) {
-    Serial.printf("[INFO] connecting %d...\n", t);
-    Serial.flush();
-    delay(1000);
-  }
-  
-  if ((WiFiMulti.run() == WL_CONNECTED)) {
-    header = httpGet(starterSetDateURI);
-    time_t parsedHeaderDate = parseHeaderDate(header);
-    if (parsedHeaderDate != 1) {
-      printParsedHeaderDate(parsedHeaderDate);
-      setTime(parsedHeaderDate);
-      Serial.printf("[INFO] ran setTime.......\n");
-    } else {
-      Serial.printf("[ERROR] failed to run parseHeaderDate...\n");
+
+  while((WiFiMulti.run() != WL_CONNECTED)) {
+    for (uint8_t t = 4; t > 0; t--) {
+      Serial.printf("[INFO] waiting to connect %d...\n", t);
+      Serial.flush();
+      delay(1000);
     }
-  } else {
-      Serial.printf("[HTTP} Unable to connect\n");
+  
+    if ((WiFiMulti.run() == WL_CONNECTED)) {
+      Serial.printf("[INFO] wifi connected...\n");
+      header = httpGet(starterSetDateURI);
+      time_t parsedHeaderDate = parseHeaderDate(header);
+
+      if (parsedHeaderDate != 1) {
+        printParsedHeaderDate(parsedHeaderDate);
+        setTime(parsedHeaderDate);
+        Serial.printf("[INFO] ran setTime in setup.......\n");
+      } else {
+        Serial.printf("[ERROR] failed to run parseHeaderDate in setup...\n");
+      }
+    } else {
+        Serial.printf("[HTTP} Unable to connect in setup\n");
+    }
   }
   pinMode(buttonPin, INPUT);
   Serial.printf("[INFO] completed setup\n");
 }
 
-//void getElapsedTime(time_t startTime, time_t endTime, int& minutes, int& seconds, int& hundredths) {
 char* getElapsedTime(time_t startTime, time_t endTime) {
   // calc diff to hundredths
   int minutes, seconds;
   
   // Calculate the elapsed time in milliseconds
-  //unsigned long elapsedTimeMillis = endTime - startTime;
   unsigned long currentTime = millis();
   unsigned long hundredths = (currentTime / 10) % 100;
   
@@ -173,24 +181,26 @@ char* getElapsedTime(time_t startTime, time_t endTime) {
 }
 
 // create a default time which gets overwritten
-String race_start_time = "Fri, 16 Feb 2024 22:54:33 GMT";
+String race_start_time = "Tue, 23 Apr 2024 17:00:33";
 char* result;
 
 void loop() {
   int buttonState = digitalRead(buttonPin);
-  if ((WiFiMulti.run() == WL_CONNECTED)) {
     if (buttonState != lastButtonState) {
       Serial.printf("[INFO] Button pressed!\n");
-      
+
       race_start_time = httpGet(starterRaceStartTimeURI);
-      time_t start = parseHeaderDate(race_start_time);
-      time_t end = now();
-      
-      result = getElapsedTime(start, end);
+      time_t start_time = parseHeaderDate(race_start_time);
+      time_t end_time = now();
+      printParsedHeaderDate(start_time);
+
+      result = getElapsedTime(start_time, end_time);
       httpPOST(starterResultsURI, result);
       
       // make sure the loop doesn't catch same button press
-      delay(5000);
+      delay(10000);
+
+      /////////////////////////////////////////////////
       // set the lane clock again, ensure it's in sync
       header = httpGet(starterSetDateURI);
       time_t parsedHeaderDate = parseHeaderDate(header);
@@ -201,10 +211,6 @@ void loop() {
       } else {
         Serial.printf("[ERROR] failed to run parseHeaderDate...\n");
       }
-    }
-  } else {
-    Serial.printf("[ERROR] http unable to connect\n");
-    delay(2000);
   }
   delay(10);
   }
